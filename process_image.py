@@ -11,6 +11,21 @@ def load_image(filepath, new_size=(320, 320)):
 
 
 def sRGBtoRGB(srgb):
+    """
+    Converts sRGB to linear RGB
+    https://en.wikipedia.org/wiki/SRGB
+
+    Parameters
+    ----------
+    srgb : np.array(dtype=np.float32)
+        Image represented in standard RGB (sRGB) color space
+
+    Returns
+    -------
+    rgb : np.array(dtype=np.float32)
+        Image represented in linear RGB
+    """
+
     rgb = np.zeros_like(srgb, dtype=np.float32)
     srgb = srgb / 255
     mask = srgb <= 0.04045
@@ -22,6 +37,20 @@ def sRGBtoRGB(srgb):
 
 
 def RGBtoXYZ(rgb):
+    """
+    Converts linear RGB to XYZ
+    https://en.wikipedia.org/wiki/SRGB
+
+    Parameters
+    ----------
+    rgb : np.array(dtype=np.float32)
+        Image represented in linear RGB color space
+
+    Returns
+    -------
+    xyz : np.array(dtype=np.float32)
+        Image represented in XYZ color space
+    """
     m = np.array(
         [[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]]
     )
@@ -31,6 +60,20 @@ def RGBtoXYZ(rgb):
 
 
 def XYZtoLAB(xyz):
+    """
+    Converts XYZ to L*a*b
+    https://en.wikipedia.org/wiki/CIELAB_color_space
+
+    Parameters
+    ----------
+    xyz : np.array(dtype=np.float32)
+        Image represented in XYZ color space
+    Returns
+    -------
+    lab : np.array(dtype=np.float32)
+        Image represented in L*a*b color space
+    """
+
     delta = 6 / 29
 
     def f(t):
