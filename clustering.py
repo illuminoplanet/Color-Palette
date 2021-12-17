@@ -10,9 +10,11 @@ class KMeans:
     def _cluster(self, data, k, n_iter):
         centroid = data[:k]
 
-        for i in range(1):
+        for i in range(n_iter):
             cluster = self._assign_centroid(data, centroid)
-            centroid = self._update_centroid(cluster)
+            centroid, done = self._update_centroid(centroid, cluster)
+            if done:
+                break
 
         return centroid, cluster
 
@@ -25,18 +27,38 @@ class KMeans:
             cluster.append(data[cluster_idx == i])
         return cluster
 
-    def _update_centroid(self, cluster):
+    def _update_centroid(self, centroid, cluster):
         new_centroid = np.array([np.mean(c, axis=0) for c in cluster], dtype=np.float32)
-        return new_centroid
+        done = np.mean(self._get_distance(new_centroid, centroid)) < 0.5
+
+        return new_centroid, done
 
     def _get_distance(self, x1, x2, ord=2):
         return np.linalg.norm(x1 - x2, ord=ord, axis=1)
 
 
+class MiniBatchKMeans(KMeans):
+    def get_repr_value(self, data, k, n_iter=200, batch_size=1024):
+        centroid, _ = self._cluster(data, k, n_iter, batch_size)
+        return centroid
+
+    def _cluster(self, data, k, n_iter, batch_size):
+        centroid = data[:k]
+        data_size = data.shape[0]
+
+        for i in range(n_iter):
+            batch = data[np.random.choice(data_size, batch_size)]
+            cluster = self._assign_centroid(batch, centroid)
+            centroid, done = self._update_centroid(centroid, cluster)
+            if done:
+                break
+
+        return centroid, cluster
+
+
 if __name__ == "__main__":
     srgb = load_image("./image.jpg")
 
-    k_means = KMeans()
-    centroid = k_means.get_repr_value(srgb, 3, n_iter=10)
+    print(MiniBatchKMeans().get_repr_value(srgb, 4))
+    print(KMeans().get_repr_value(srgb, 4))
 
-    print(centroid)
