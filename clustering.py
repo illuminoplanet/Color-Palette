@@ -59,7 +59,7 @@ class KMeans:
             cluster = self._assign_centroid(data, centroid)
             # Update the centroids with current cluster center
             centroid, done = self._update_centroid(centroid, cluster)
-            # If update size is within tolerance range, pre-terminate the loop
+            # If update size is within tolerance range, early terminate the loop
             if done:
                 break
 
@@ -138,17 +138,61 @@ class KMeans:
 
 class MiniBatchKMeans(KMeans):
     def get_repr_value(self, data, k, n_iter=200, batch_size=1024):
-        centroid, _ = self._cluster(data, k, n_iter, batch_size)
-        return centroid
+        """
+        Gets k representative values from data
+
+        Parameters
+        ----------
+        data : np.array(dtype=np.float32)
+            Data to extract representative values from 
+        k : int
+            Number of representative values to extract
+        n_iter : int
+            Number of iterations in MiniBatch K-Means clustering process
+        batch_size : int
+            Size of minibatch 
+        
+        Returns
+        -------
+        repr_value : np.array(dtype=np.float32)
+            Extracted representative values 
+        """
+        repr_value, _ = self._cluster(data, k, n_iter, batch_size)
+        return repr_value
 
     def _cluster(self, data, k, n_iter, batch_size):
+        """
+        Cluster the data in k classes using MiniBatch K-Means algorithm 
+
+        Parameters
+        ----------
+        data : np.array(dtype=np.float32)
+            Data to cluster
+        k : int
+            Number of clusters
+        n_iter : int
+            Number of iterations in K-Means clustering process
+        batch_size : int    
+            Size of minibatch 
+
+        Returns
+        -------
+        centroid : np.array(dtype=np.float32)
+            Centroid of each cluster
+        cluster : list[np.array(dtype=np.float32)]
+            Clusters
+        """
         centroid = data[:k]
         data_size = data.shape[0]
 
         for i in range(n_iter):
+            # Create minibatch of size batch_size from data
             batch = data[np.random.choice(data_size, batch_size)]
+            # Assign each data to closest centroid
             cluster = self._assign_centroid(batch, centroid)
+            # Update the centroids with current cluster center
             centroid, done = self._update_centroid(centroid, cluster)
+            # If update size is within tolerance range, early terminate the loop
             if done:
                 break
 
