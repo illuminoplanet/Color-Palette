@@ -1,5 +1,4 @@
 import numpy as np
-from load_image import *
 
 
 def sRGBtoRGB(srgb):
@@ -84,18 +83,3 @@ def XYZtoLab(xyz):
     lab[:, 2] = 200 * (temp[:, 1] - temp[:, 2])
 
     return lab
-
-
-if __name__ == "__main__":
-    srgb = load_image("image.jpg")[:10]
-    print("sRGB\n", srgb)
-
-    rgb = sRGBtoRGB(srgb)
-    print("RGB\n", rgb)
-
-    xyz = RGBtoXYZ(rgb)
-    print("XYZ\n", xyz)
-
-    lab = XYZtoLab(xyz)
-    print("LAB\n", lab)
-

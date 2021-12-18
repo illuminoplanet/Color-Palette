@@ -1,6 +1,14 @@
-import requests
+from clustering import *
+from image_processing import *
 
-url = 'https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg'
-filename = url.split('/')[-1]
-r = requests.get(url, allow_redirects=True)
-open(filename, 'wb').write(r.content)
+
+if __name__ == "__main__":
+    srgb = load_image("./image.jpg")
+
+    print(
+        MiniBatchKMeans().get_repr_value(
+            srgb, 4, params={"n_iter": 200, "batch_size": 1024}
+        )
+    )
+    print(KMeans().get_repr_value(srgb, 4, params={"n_iter": 200}))
+

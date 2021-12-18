@@ -1,6 +1,4 @@
 import numpy as np
-from load_image import *
-from sRGB_to_Lab import *
 
 
 def LabtoXYZ(lab):
@@ -92,25 +90,3 @@ def RGBtosRGB(rgb):
 
     return srgb
 
-
-if __name__ == "__main__":
-    srgb = load_image("image.jpg")[:3]
-    print("sRGB\n", srgb)
-
-    rgb = sRGBtoRGB(srgb)
-    print("RGB\n", rgb)
-
-    xyz = RGBtoXYZ(rgb)
-    print("XYZ\n", xyz)
-
-    lab = XYZtoLab(xyz)
-    print("LAB\n", lab)
-
-    ixyz = LabtoXYZ(lab)
-    print("IXYZ\n", ixyz)
-
-    irgb = XYZtoRGB(ixyz)
-    print("IRGB\n", irgb)
-
-    isrgb = RGBtosRGB(irgb)
-    print("IsRGB\n", isrgb)
