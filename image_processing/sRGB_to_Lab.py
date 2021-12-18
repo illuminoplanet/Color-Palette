@@ -9,12 +9,12 @@ def sRGBtoRGB(srgb):
     Parameters
     ----------
     srgb : np.array(dtype=np.float32)
-        Image represented in standard RGB (sRGB) color space
+        Colors represented in standard RGB (sRGB) color space
 
     Returns
     -------
     rgb : np.array(dtype=np.float32)
-        Image represented in linear RGB
+        Colors represented in linear RGB
     """
 
     rgb = np.zeros_like(srgb, dtype=np.float32)
@@ -35,12 +35,12 @@ def RGBtoXYZ(rgb):
     Parameters
     ----------
     rgb : np.array(dtype=np.float32)
-        Image represented in linear RGB color space
+        Colors represented in linear RGB color space
 
     Returns
     -------
     xyz : np.array(dtype=np.float32)
-        Image represented in XYZ color space
+        Colors represented in XYZ color space
     """
     m = np.array(
         [[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]]
@@ -58,11 +58,11 @@ def XYZtoLab(xyz):
     Parameters
     ----------
     xyz : np.array(dtype=np.float32)
-        Image represented in XYZ color space
+        Colors represented in XYZ color space
     Returns
     -------
     lab : np.array(dtype=np.float32)
-        Image represented in L*a*b color space
+        Colors represented in L*a*b color space
     """
 
     delta = 6 / 29

@@ -9,11 +9,11 @@ def LabtoXYZ(lab):
     Parameters
     ----------
     lab : np.array(dtype=np.float32)
-        Image represented in L*a*b color space
+        Colors represented in L*a*b color space
     Returns
     -------
     xyz : np.array(dtype=np.float32)
-        Image represented in XYZ color space
+        Colors represented in XYZ color space
     """
 
     delta = 6 / 29
@@ -45,12 +45,12 @@ def XYZtoRGB(xyz):
     Parameters
     ----------
     xyz : np.array(dtype=np.float32)
-        Image represented in XYZ color space
+        Colors represented in XYZ color space
 
     Returns
     -------
     rgb : np.array(dtype=np.float32)
-        Image represented in linear RGB color space
+        Colors represented in linear RGB color space
     """
 
     m = np.array(
@@ -73,12 +73,12 @@ def RGBtosRGB(rgb):
     Parameters
     ----------
     rgb : np.array(dtype=np.float32)
-        Image represented in linear RGB
+        Colors represented in linear RGB
 
     Returns
     -------
     srgb : np.array(dtype=np.float32)
-        Image represented in standard RGB (sRGB) color space
+        Colors represented in standard RGB (sRGB) color space
     """
 
     srgb = np.zeros_like(rgb, dtype=np.float32)
@@ -89,4 +89,24 @@ def RGBtosRGB(rgb):
     srgb *= 255
 
     return srgb
+
+
+def sRGBtoHex(srgb):
+    """
+    Converts sRGB to Hex
+
+    Parameters
+    ----------
+    srgb : np.array(dtype=np.float32)
+        Colors represented in standard RGB (sRGB) color space
+
+    Returns
+    -------
+    hexa : list[str]
+        Colors represented in Hex
+    """
+
+    srgb = srgb.astype(np.uint8)
+    hexa = [f"#{color[0]:02x}{color[1]:02x}{color[2]:02x}" for color in srgb]
+    return hexa
 
