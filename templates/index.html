@@ -1,27 +1,35 @@
 <!DOCTYPE HTML>
 <html>
     <head>
+        <title>Color Palette</title>
         <link rel="stylesheet" href="static/css/main.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Rubik">
     </head>
 
     <body>
+        <div class="division-line"></div>
         <div class="wrapper">
             <div class="item item__title">
                 <p>COLOR PALETTE</p>
                 <div></div>
             </div>
             <div class="item item__image">
-                <div class="card__image card">
+                <div class="card--image__border card">
                     <p>Image</p>
+                    <div class="card--image__drop card" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);"></div>
                 </div>
             </div>
             <div class="item item__control">
-                <p> Hello </p>
+                <div class="card--control__border card">
+                    <p>Clustering Algorithm</p>
+                </div>
             </div>
             <div class="item item__palette">
-                <p> Hello </p>
+                <div class="card--palette_border card">
+                    <p>Color Palette</p>
+                </div>
             </div>
         </div>
     </body>
+    <script src="static/js/main.js"></script>
 </html>
