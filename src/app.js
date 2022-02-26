@@ -27,7 +27,12 @@ class App {
         this.wall.resize(this.stageWidth, this.stageHeight)
     }
     mouseMove(event) {
-        this.wall.mouseMove(event)
+        event = event || window.event
+
+        const inXBound = (event.pageX > this.stageWidth * 0.25) && (event.pageX < this.stageWidth * 0.75)
+        const inYBound = (event.pageY > this.stageHeight * 0.25) && (event.pageY < this.stageHeight * 0.75)
+
+        this.wall.focusNearest(inXBound && inYBound)
     }
     animate() {
         requestAnimationFrame(this.animate.bind(this))
