@@ -1,4 +1,4 @@
-import { Wall } from "./wall.js"
+import { Wall } from "../wall.js.js.js"
 
 class App {
     constructor() {
