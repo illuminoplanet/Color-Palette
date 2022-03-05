@@ -50,3 +50,6 @@ export const ARTWORKS = {
         year: "1964",
     }
 }
+
+// Image loaded event 
+export const eventImageLoaded = new CustomEvent('imageLoaded', { bubbles: true })
