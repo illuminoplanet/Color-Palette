@@ -4,6 +4,11 @@ export const ARTWORKS = {
         title: "Sunflowers",
         year: "1888",
     },
+    "the_persistence_of_memory": {
+        artist: "Salvador Dalí",
+        title: "The Persistence of Memory",
+        year: "1931",
+    },
     "the_starry_night": {
         artist: "Vincent van Gogh",
         title: "The Starry Night",
@@ -18,11 +23,6 @@ export const ARTWORKS = {
         artist: "Pablo Picasso",
         title: "The Weeping Woman",
         year: "1937",
-    },
-    "the_persistence_of_memory": {
-        artist: "Salvador Dalí",
-        title: "The Persistence of Memory",
-        year: "1931",
     },
     "the_scream": {
         artist: "Edvard Munch",

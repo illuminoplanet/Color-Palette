@@ -116,8 +116,8 @@ class MiniBatchKMeans(KMeans):
         cluster : list[np.array(dtype=np.float32)]
             Clusters
         """
-        centroid = data[:k]
         data_size = data.shape[0]
+        centroid = data[np.random.choice(data_size, k)]
         n_iter = params["n_iter"]
         batch_size = params["batch_size"]
 
@@ -131,5 +131,4 @@ class MiniBatchKMeans(KMeans):
             # If update size is within tolerance range, early terminate the loop
             if done:
                 break
-
         return centroid, cluster

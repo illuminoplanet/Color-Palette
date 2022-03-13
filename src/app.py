@@ -1,6 +1,18 @@
-from flask import Flask, render_template
+from urllib.request import urlopen
+from flask import Flask, render_template, jsonify, request
+
+from model import get_color_pallete
 
 app = Flask(__name__)
+
+
+@app.route("/color-pallete", methods=["GET", "POST"])
+def color_pallete():
+    if request.method == "POST":
+        blob = request.files["image"]
+        color_pallete = get_color_pallete(blob)
+
+        return jsonify(color_pallete)
 
 
 @app.route("/")

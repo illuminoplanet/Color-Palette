@@ -1,7 +1,15 @@
 import numpy as np
 
 
-def sRGBtoRGB(srgb):
+def srgb_to_lab(srgb):
+    rgb = srgb_to_rgb(srgb)
+    xyz = rgb_to_xyz(rgb)
+    lab = xyz_to_lab(xyz)
+
+    return lab
+
+
+def srgb_to_rgb(srgb):
     """
     Converts sRGB to linear RGB
     https://en.wikipedia.org/wiki/SRGB
@@ -27,7 +35,7 @@ def sRGBtoRGB(srgb):
     return rgb
 
 
-def RGBtoXYZ(rgb):
+def rgb_to_xyz(rgb):
     """
     Converts linear RGB to XYZ
     https://en.wikipedia.org/wiki/SRGB
@@ -50,7 +58,7 @@ def RGBtoXYZ(rgb):
     return xyz
 
 
-def XYZtoLab(xyz):
+def xyz_to_lab(xyz):
     """
     Converts XYZ to L*a*b
     https://en.wikipedia.org/wiki/CIELAB_color_space

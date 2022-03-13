@@ -21,6 +21,7 @@ export class Wall {
         this.vh = Math.round(stageHeight * 0.01)
 
         this.gap = Math.max(this.stageWidth * 0.5, 480)
+        this.k = this.stageWidth * 0.15
 
         // Resize child components
         for (const artwork of this.artworks)
@@ -32,12 +33,16 @@ export class Wall {
         let distClosestArtwork = Infinity
         for (const artwork of this.artworks) {
             midX += artwork.w * 0.5
-            artwork.draw(ctx, midX, midY)
+            if (midX - artwork.w * 0.5 <= this.stageWidth) {
+                artwork.draw(ctx, midX, midY)
+                artwork.updateColorPallete()
+            }
 
             const distArtwork = Math.abs(midX - this.stageWidth * 0.5)
-            if (distArtwork != NaN && distArtwork < distClosestArtwork)
+            if (distArtwork != NaN && distArtwork < distClosestArtwork) {
                 distClosestArtwork = distArtwork
-
+                this.closesetArtwork = artwork
+            }
             midX += this.gap + artwork.w * 0.5
         }
 
@@ -49,10 +54,11 @@ export class Wall {
 
         // Slide offset 
         let v = this.v0
-        if (distClosestArtwork <= this.stageWidth * 0.15) {
+        if (distClosestArtwork <= this.k) {
             this.t++
-            v = 0.5 * this.v0 * (Math.cos(Math.PI * this.v0 / (this.stageWidth * 0.15 * 2) * this.t) + 1)
-            v = Math.max(v, 0.01)
+            v = 0.5 * this.v0 * (Math.cos(Math.PI * this.v0 / (this.k * 2) * this.t) + 1)
+
+
         }
         else this.t = 0
         this.offset -= v

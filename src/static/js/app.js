@@ -3,9 +3,9 @@ import { Wall } from "./wall.js"
 class App {
     constructor() {
         // Create canvas 
-        this.canvas = document.createElement('canvas')
-        this.ctx = this.canvas.getContext('2d')
-        document.body.appendChild(this.canvas)
+        this.mainCanvas = document.createElement('canvas')
+        this.mainCtx = this.mainCanvas.getContext('2d')
+        document.body.appendChild(this.mainCanvas)
 
         // Add event listener
         this.numArtworks = { 'total': 10, 'loaded': 0 }
@@ -25,21 +25,24 @@ class App {
     resize() {
         this.stageWidth = document.body.clientWidth
         this.stageHeight = document.body.clientHeight
-
-        this.canvas.width = this.stageWidth * 2
-        this.canvas.height = this.stageHeight * 2
-        this.ctx.scale(2, 2)
+        this.setCanvasSize(this.stageWidth, this.stageHeight)
 
         // Resize child component
         this.wall.resize(this.stageWidth, this.stageHeight)
     }
     animate() {
         requestAnimationFrame(this.animate.bind(this))
-        this.ctx.clearRect(0, 0, this.stageWidth, this.stageHeight)
+        this.mainCtx.clearRect(0, 0, this.stageWidth, this.stageHeight)
 
         // Draw child components
-        this.wall.draw(this.ctx)
-        this.ctx.fill()
+        this.wall.draw(this.mainCtx)
+        this.mainCtx.fill()
+        this.mainCtx.stroke()
+    }
+    setCanvasSize(w, h) {
+        this.mainCanvas.width = w * 2
+        this.mainCanvas.height = h * 2
+        this.mainCtx.scale(2, 2)
     }
 }
 

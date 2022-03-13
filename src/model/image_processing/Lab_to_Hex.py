@@ -1,7 +1,16 @@
 import numpy as np
 
 
-def LabtoXYZ(lab):
+def lab_to_hex(lab):
+    xyz = lab_to_xyz(lab)
+    rgb = xyz_to_rgb(xyz)
+    srgb = rgb_to_srgb(rgb)
+    hexa = srgb_to_hex(srgb)
+
+    return hexa
+
+
+def lab_to_xyz(lab):
     """
     Converts L*a*b to XYZ
     https://en.wikipedia.org/wiki/CIELAB_color_space
@@ -37,7 +46,7 @@ def LabtoXYZ(lab):
     return xyz
 
 
-def XYZtoRGB(xyz):
+def xyz_to_rgb(xyz):
     """
     Converts XYZ to linear RGB 
     https://en.wikipedia.org/wiki/SRGB
@@ -65,7 +74,7 @@ def XYZtoRGB(xyz):
     return rgb
 
 
-def RGBtosRGB(rgb):
+def rgb_to_srgb(rgb):
     """
     Converts linear RGB to sRGB
     https://en.wikipedia.org/wiki/SRGB
@@ -91,7 +100,7 @@ def RGBtosRGB(rgb):
     return srgb
 
 
-def sRGBtoHex(srgb):
+def srgb_to_hex(srgb):
     """
     Converts sRGB to Hex
 
