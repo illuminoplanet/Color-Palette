@@ -1,16 +1,25 @@
-import { ARTWORKS, eventImageLoaded } from "./constants.js"
+import { ARTWORKS, eventLoaded, eventPreloaded } from "./constants.js"
 import { fillRect, fillRoundRect, drawImage, drawShadow } from "./helper.js"
 
 export class Artwork {
-    constructor(key) {
-        this.painting = new Painting(key)
+    constructor(key, preload) {
+        this.latest = false
+        this.preload = preload
+
+        this.painting = new Painting(key, () => {
+            if (this.preload)
+                this.updateColorPallete()
+        })
         this.frame = new Frame()
         this.label = new Label(ARTWORKS[key])
 
-        this.latestColorPallete = false
+        // Canvas used to draw artwork
+        this.artworkCanvas = document.createElement('canvas')
+        this.artworkCtx = this.artworkCanvas.getContext('2d')
+        document.body.appendChild(this.artworkCanvas)
     }
     resize(stageWidth, stageHeight) {
-        // Resize stage 
+        // Resize stage
         this.setStageSize(stageWidth, stageHeight)
 
         // Resize child components
@@ -21,16 +30,27 @@ export class Artwork {
         // Resize self 
         this.w = this.frame.w
         this.h = this.frame.h + this.label.h + this.vh * 3
+        this.aw = this.w * 1.5
+        this.ah = this.h * 1.5
+
+        // Resize canvas 
+        this.setCanvasSize(this.aw, this.ah)
+
+        // Draw fixed object & shadow
+        this.frame.drawShadow(this.artworkCtx, this.aw * 0.5, this.ah * 0.5 - this.h * 0.5 + this.frame.h * 0.5)
+        this.frame.draw(this.artworkCtx, this.aw * 0.5, this.ah * 0.5 - this.h * 0.5 + this.frame.h * 0.5)
+        this.label.drawShadow(this.artworkCtx, this.aw * 0.5 - (this.painting.w - this.label.w) * 0.5, this.ah * 0.5 + this.h * 0.5 - this.label.h * 0.5)
     }
     draw(ctx, x, y) {
-        this.frame.draw(ctx, x, y - (this.h - this.frame.h))
-        this.painting.draw(ctx, x, y - (this.h - this.frame.h))
-        this.label.draw(ctx, x - (this.painting.w - this.label.w) * 0.5, y + (this.frame.h - this.label.h) * 0.5)
+        const [luX, luY] = [x - this.aw * 0.5, y - this.ah * 0.5]
+        this.painting.draw(this.artworkCtx, this.aw * 0.5, this.ah * 0.5 - this.h * 0.5 + this.frame.h * 0.5)
+        this.label.draw(this.artworkCtx, this.aw * 0.5 - (this.painting.w - this.label.w) * 0.5, this.ah * 0.5 + this.h * 0.5 - this.label.h * 0.5)
+        drawImage(ctx, this.artworkCanvas, luX, luY, this.aw, this.ah)
     }
     updateColorPallete() {
-        if (!this.latestColorPallete)
+        if (!this.latest)
             this.setColorPallete()
-        this.latestColorPallete = true
+        this.latest = true
     }
     setColorPallete() {
         this.painting.getPainting().then((body) => {
@@ -39,24 +59,40 @@ export class Artwork {
                 body: body
             })
                 .then((res) => { return res.json() })
-                .then((json) => { this.label.setColorPallete(json) })
+                .then((json) => {
+                    this.label.setColorPallete(json)
+                    window.dispatchEvent(eventPreloaded)
+                })
         })
     }
-    setStageSize(stageWidth, stageHeight) {
-        this.stageWidth = stageWidth
-        this.stageHeight = stageHeight
-        this.vw = Math.round(stageWidth * 0.01)
-        this.vh = Math.round(stageHeight * 0.01)
+    setStageSize(w, h) {
+        this.stageWidth = w
+        this.stageHeight = h
+        this.vw = Math.round(w * 0.01)
+        this.vh = Math.round(h * 0.01)
+    }
+    setCanvasSize(w, h) {
+        this.artworkCanvas.width = w * 2
+        this.artworkCanvas.height = h * 2
+        this.artworkCtx.scale(2, 2)
+    }
+    setProgress(progress) {
+        this.label.setProgress(progress)
+    }
+    setPosition(x, y) {
+        this.x = x
+        this.y = y
     }
 }
 
 
 class Painting {
-    constructor(key) {
+    constructor(key, callback) {
         // Load image 
         this.image = new Image()
         this.image.onload = () => {
-            window.dispatchEvent(eventImageLoaded)
+            window.dispatchEvent(eventLoaded)
+            callback()
         }
         this.image.src = `static/image/${key}.jpg`
 
@@ -105,12 +141,8 @@ class Painting {
 }
 
 class Frame {
-    constructor() {
-        this.frameColor = ['black', 'white']
-    }
     resize(stageWidth, stageHeight, paintingW, paintingH) {
-        this.vw = Math.round(stageWidth * 0.01)
-        this.vh = Math.round(stageHeight * 0.01)
+        this.setStageSize(stageWidth, stageHeight)
 
         this.outerFrame = this.vh * 1.5
         this.innerFrame = this.vh * 2
@@ -120,14 +152,22 @@ class Frame {
     draw(ctx, x, y) {
         const [luX, luY] = [x - this.w * 0.5, y - this.h * 0.5]
 
-        // Draw outer shadow
-        drawShadow(ctx, 8, 'rgba(0, 0, 0, 0.1)', this.vh, luX, luY, this.w, this.h)
         // Draw outer frame
-        ctx.fillStyle = this.frameColor[0]
+        ctx.fillStyle = "black"
         fillRect(ctx, luX, luY, this.w, this.h)
         // Draw inner frame
-        ctx.fillStyle = this.frameColor[1]
+        ctx.fillStyle = "white"
         fillRect(ctx, luX + this.outerFrame, luY + this.outerFrame, this.w - this.outerFrame * 2, this.h - this.outerFrame * 2)
+    }
+    drawShadow(ctx, x, y) {
+        const [luX, luY] = [x - this.w * 0.5, y - this.h * 0.5]
+        drawShadow(ctx, 8, 'rgba(0, 0, 0, 0.1)', this.vh, luX, luY, this.w, this.h)
+    }
+    setStageSize(w, h) {
+        this.stageWidth = w
+        this.stageHeight = h
+        this.vw = Math.round(w * 0.01)
+        this.vh = Math.round(h * 0.01)
     }
 }
 
@@ -152,10 +192,6 @@ class Label {
     draw(ctx, x, y) {
         const [luX, luY] = [x - this.w * 0.5, y - this.h * 0.5]
 
-        // Draw outer shadow
-        drawShadow(this.labelCtx, 3, 'rgba(0, 0, 0, 0.1)', this.vh * 0.5, 0, 0, this.w, this.h)
-        drawShadow(this.labelCtx, 2, 'rgba(255, 255, 255, 0.1)', -this.vh, 0, 0, this.w, this.h)
-
         // Draw background
         this.labelCtx.fillStyle = "white"
         fillRect(this.labelCtx, 0, 0, this.w, this.h)
@@ -176,19 +212,30 @@ class Label {
 
             for (let i = 0; i < this.colorPallete.length; i++) {
                 this.labelCtx.fillStyle = this.colorPallete[i]
-                fillRoundRect(this.labelCtx, gap * 2 + (gap + paletteW) * i, (this.h - paletteH) - gap * 2, paletteW, paletteH, this.vh * 0.5)
+                let h = -paletteH / (this.c ** 2) * (this.time - 0.25 * this.c * i) * (this.time - 0.25 * this.c * i - 2 * this.c)
+                if (this.time >= 0.25 * this.c * i + this.c)
+                    h = paletteH
+                fillRoundRect(this.labelCtx, gap * 2 + (gap + paletteW) * i, (this.h - paletteH) - gap * 2, paletteW, h, this.vh * 0.3)
             }
         }
-
         drawImage(ctx, this.labelCanvas, luX, luY, this.w, this.h)
+    }
+    drawShadow(ctx, x, y) {
+        const [luX, luY] = [x - this.w * 0.5, y - this.h * 0.5]
+        // Draw outer shadow
+        drawShadow(ctx, 12, 'rgba(0, 0, 0, 0.1)', this.vh * 0.5, luX, luY, this.w, this.h)
+        drawShadow(ctx, 4, 'rgba(255, 255, 255, 0.1)', -this.vh, luX, luY, this.w, this.h)
     }
     setColorPallete(colorPallete) {
         this.colorPallete = colorPallete
-        this.t = 0
     }
     setCanvasSize(w, h) {
         this.labelCanvas.width = w * 2
         this.labelCanvas.height = h * 2
         this.labelCtx.scale(2, 2)
+    }
+    setProgress(spectating) {
+        this.time = spectating['time']
+        this.c = spectating['cycle'] * 0.25
     }
 }

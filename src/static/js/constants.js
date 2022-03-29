@@ -52,4 +52,5 @@ export const ARTWORKS = {
 }
 
 // Image loaded event 
-export const eventImageLoaded = new CustomEvent('imageLoaded', { bubbles: true })
+export const eventLoaded = new CustomEvent('loaded', { bubbles: true })
+export const eventPreloaded = new CustomEvent('preloaded', { bubbles: true })
