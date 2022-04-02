@@ -18,11 +18,14 @@ class App {
         this.wall = new Wall(this.numArtworks)
 
         // Set current mode 
-        this.currentMode = "preparing"
+        window.gv = {
+            currentMode: "preparing"
+
+        }
     }
     mouseMove(event) {
         // Ignore if program is not prepared
-        if (this.currentMode == "preparing")
+        if (window.gv['currentMode'] == "preparing")
             return
 
         event = event || window.event
@@ -30,26 +33,26 @@ class App {
         let inYRange = event.pageY > this.stageHeight * 0.25 && event.pageY < this.stageHeight * 0.75
 
         // spectating -> focusing 
-        if (this.currentMode == "spectating" && (inXRange && inYRange)) {
-            this.wall.switchMode("focusing")
-            this.currentMode = "focusing"
+        if (window.gv['currentMode'] == "spectating" && (inXRange && inYRange)) {
+            window.gv['currentMode'] = "focusing"
+            this.wall.updateMode()
         }
         // focusing -> spectating 
-        else if (this.currentMode == "focusing" && !inYRange) {
-            this.wall.switchMode("spectating")
-            this.currentMode = "spectating"
+        else if (window.gv['currentMode'] == "focusing" && !inYRange) {
+            window.gv['currentMode'] = "spectating"
+            this.wall.updateMode()
         }
     }
     resize() {
         this.setStageSize()
-        this.setCanvasSize(this.stageWidth, this.stageHeight)
+        this.setCanvasSize(window.gv['stageWidth'], window.gv['stageHeight'])
 
         // Resize child component
-        this.wall.resize(this.stageWidth, this.stageHeight)
+        this.wall.resize(window.gv['stageWidth'], window.gv['stageHeight'])
     }
     animate() {
         requestAnimationFrame(this.animate.bind(this))
-        this.mainCtx.clearRect(0, 0, this.stageWidth, this.stageHeight)
+        this.mainCtx.clearRect(0, 0, window.gv['stageWidth'], window.gv['stageHeight'])
 
         // Draw child component
         this.wall.draw(this.mainCtx)
@@ -63,13 +66,13 @@ class App {
         this.count['totalPreload'] += !isLoad
         if (this.count["totalLoad"] == this.numArtworks["totalLoad"] && this.count["totalPreload"] == this.numArtworks["totalPreload"]) {
             this.resize()
-            this.currentMode = "spectating"
+            window.gv['currentMode'] = "spectating"
             requestAnimationFrame(this.animate.bind(this))
         }
     }
     setStageSize() {
-        this.stageWidth = document.body.clientWidth
-        this.stageHeight = document.body.clientHeight
+        window.gv['stageWidth'] = document.body.clientWidth
+        window.gv['stageHeight'] = document.body.clientHeight
     }
     setCanvasSize(w, h) {
         this.mainCanvas.width = w * 2

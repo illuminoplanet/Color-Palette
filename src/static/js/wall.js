@@ -4,7 +4,6 @@ import { ARTWORKS } from "./constants.js"
 export class Wall {
     constructor(numArtworks) {
         this.numArtworks = numArtworks
-        this.currentMode = "spectating"
 
         // Set spatial variables
         this.offset = 0
@@ -25,14 +24,11 @@ export class Wall {
             this.artworks.push(new Artwork(key, isPreload))
         }
     }
-    switchMode(mode) {
-        this.currentMode = mode
-        if (this.currentMode == "spectating") {
+    updateMode() {
+        if (window.gv['currentMode'] == "spectating") {
             this.spectating["time"] = this.spectating["cycle"] * 0.5
-            for (const artwork of this.artworks)
-                artwork.resize(this.stageWidth, this.stageHeight)
         }
-        else if (this.currentMode == "focusing") {
+        else if (window.gv['currentMode'] == "focusing") {
             this.spectating["time"] = this.spectating["cycle"] * 0.5
         }
     }
@@ -50,7 +46,7 @@ export class Wall {
     draw(ctx) {
         // Draw child components
         let [midX, midY] = [this.offset, this.stageHeight * 0.5]
-        this.closestArtwork = this.artworks[0]
+        window.gv['closestArtwork'] = this.artworks[0]
         for (const artwork of this.artworks) {
             midX += artwork.w * 0.5
 
@@ -62,9 +58,9 @@ export class Wall {
 
             // Get closest to middle artwork
             const distCurrArtwork = Math.abs(midX - this.stageWidth * 0.5)
-            const distClosestArtwork = Math.abs(this.closestArtwork.x - this.stageWidth * 0.5)
+            const distClosestArtwork = Math.abs(window.gv['closestArtwork'].x - this.stageWidth * 0.5)
             if (distCurrArtwork < distClosestArtwork)
-                this.closestArtwork = artwork
+                window.gv['closestArtwork'] = artwork
 
             midX += this.gap + artwork.w * 0.5
         }
@@ -77,19 +73,19 @@ export class Wall {
 
         // Slide offset 
         let velocity = this.spectating["initial_velocity"]
-        if (this.currentMode == "spectating") {
-            const dist = Math.abs(this.closestArtwork.x - this.stageWidth * 0.5)
+        if (window.gv['currentMode'] == "spectating") {
+            const dist = Math.abs(window.gv['closestArtwork'].x - this.stageWidth * 0.5)
             if (dist <= this.spectating["distance"]) {
                 this.spectating["time"]++
                 velocity = this.getVelocity()
-                this.closestArtwork.setProgress(this.spectating)
+                window.gv['closestArtwork'].setProgress(this.spectating)
             }
             else
                 this.spectating["time"] = 0
         }
         else {
-            velocity = (this.closestArtwork.x - this.stageWidth * 0.5) * 0.1
-            this.closestArtwork.setProgress(this.spectating)
+            velocity = (window.gv['closestArtwork'].x - this.stageWidth * 0.5) * 0.1
+            window.gv['closestArtwork'].setProgress(this.spectating)
         }
 
         this.offset -= velocity

@@ -3,6 +3,7 @@ import { fillRect, fillRoundRect, drawImage, drawShadow } from "./helper.js"
 
 export class Artwork {
     constructor(key, preload) {
+        this.key = key
         this.latest = false
         this.preload = preload
 
@@ -89,6 +90,7 @@ export class Artwork {
 class Painting {
     constructor(key, callback) {
         // Load image 
+        this.key = key
         this.image = new Image()
         this.image.onload = () => {
             window.dispatchEvent(eventLoaded)
@@ -100,6 +102,13 @@ class Painting {
         this.paintingCanvas = document.createElement('canvas')
         this.paintingCtx = this.paintingCanvas.getContext('2d')
         document.body.appendChild(this.paintingCanvas)
+
+        window.addEventListener("mousemove", this.mouseMove.bind(this))
+        window.addEventListener("mouseup", this.mouseUp.bind(this))
+        window.addEventListener("mousedown", this.mouseDown.bind(this))
+
+        this.paintingMode = false
+        this.paintingPosition = { x: 0, y: 0 }
     }
     resize(stageWidth, stageHeight) {
         // Resize 
@@ -117,6 +126,39 @@ class Painting {
         const [luX, luY] = [x - this.w * 0.5, y - this.h * 0.5]
         drawImage(ctx, this.paintingCanvas, luX, luY, this.w, this.h)
     }
+    mouseUp() {
+        this.paintingMode = false
+        window.gv['closestArtwork'].updateColorPallete()
+    }
+    mouseDown(event) {
+        this.paintingMode = true
+        this.getPosition(event)
+    }
+    mouseMove(event) {
+        if (window.gv['currentMode'] != "focusing" || !window.gv['closestArtwork'] || window.gv['closestArtwork'].key != this.key)
+            return
+
+        event = event || window.event
+        let inXRange = event.pageX > this.stageWidth * 0.5 - this.w * 0.5 && event.pageX < this.stageWidth * 0.5 + this.w * 0.5
+        let inYRange = event.pageY > this.stageHeight * 0.5 - this.h * 0.5 && event.pageY < this.stageHeight * 0.5 + this.h * 0.5
+
+        this.paintingCtx.lineWidth = 5
+        this.paintingCtx.lineCap = 'round'
+        this.paintingCtx.strokeStyle = 'green'
+        if (this.paintingMode && inXRange && inYRange) {
+            window.gv['closestArtwork'].latest = false
+            this.paintingCtx.beginPath()
+            this.paintingCtx.moveTo(this.paintingPosition.x, this.paintingPosition.y)
+            this.getPosition(event)
+            this.paintingCtx.lineTo(this.paintingPosition.x, this.paintingPosition.y)
+            this.paintingCtx.closePath()
+            this.paintingCtx.stroke()
+        }
+    }
+    getPosition(event) {
+        this.paintingPosition.x = event.pageX - this.stageWidth * 0.5 + this.w * 0.5
+        this.paintingPosition.y = event.pageY - (this.stageHeight * 0.5 - window.gv['closestArtwork'].h * 0.5 + window.gv['closestArtwork'].frame.h * 0.5 - this.h * 0.5)
+    }
     setStageSize(stageWidth, stageHeight) {
         this.stageWidth = stageWidth
         this.stageHeight = stageHeight
@@ -133,9 +175,11 @@ class Painting {
             this.paintingCanvas.toBlob((blob) => {
                 let formData = new FormData()
                 formData.append("image", blob)
+                formData.append("key", this.key)
                 resolve(formData)
             }), 'image/jpeg'
         })
+
         return formData
     }
 }
